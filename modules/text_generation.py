@@ -249,7 +249,6 @@ def generate_reply(question, state, eos_token=None, stopping_strings=[]):
         generate_params.update({'inputs': input_ids})
         if inputs_embeds is not None:
             generate_params.update({'inputs_embeds': inputs_embeds})
-
     # Create the StoppingCriteriaList with the stopping strings (needs to be done after tokenizer extensions)
     stopping_criteria_list = transformers.StoppingCriteriaList()
     for st in (stopping_strings, ast.literal_eval(f"[{state['custom_stopping_strings']}]")):
@@ -293,9 +292,11 @@ def generate_reply(question, state, eos_token=None, stopping_strings=[]):
                 return Iteratorize(generate_with_callback, kwargs, callback=None)
 
             if not shared.is_chat() and shared.model_type != 'HF_seq2seq':
+                print("chat branch called")
                 yield formatted_outputs(original_question, shared.model_name)
-
+                print("still in this function")
             with generate_with_streaming(**generate_params) as generator:
+                print("Entered generator block")
                 for output in generator:
                     if shared.soft_prompt:
                         output = torch.cat((input_ids[0], output[filler_input_ids.shape[1]:]))

@@ -1,7 +1,6 @@
 import argparse
 import logging
 from pathlib import Path
-
 import yaml
 
 model = None
@@ -93,15 +92,15 @@ parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpForma
 
 # Basic settings
 parser.add_argument('--notebook', action='store_true', help='Launch the web UI in notebook mode, where the output is written to the same text box as the input.')
-parser.add_argument('--chat', action='store_true', help='Launch the web UI in chat mode with a style similar to the Character.AI website.')
+parser.add_argument('--chat', action='store_true', default=True, help='Launch the web UI in chat mode with a style similar to the Character.AI website.')
 parser.add_argument('--cai-chat', action='store_true', help='DEPRECATED: use --chat instead.')
 parser.add_argument('--character', type=str, help='The name of the character to load in chat mode by default.')
-parser.add_argument('--model', type=str, help='Name of the model to load by default.')
+parser.add_argument('--model', type=str, default='vicuna-13b-GPTQ-4bit-128g', help='Name of the model to load by default.')
 parser.add_argument('--lora', type=str, nargs="+", help='The list of LoRAs to load. If you want to load more than one LoRA, write the names separated by spaces.')
 parser.add_argument("--model-dir", type=str, default='models/', help="Path to directory with all the models")
 parser.add_argument("--lora-dir", type=str, default='loras/', help="Path to directory with all the loras")
 parser.add_argument('--model-menu', action='store_true', help='Show a model menu in the terminal when the web UI is first launched.')
-parser.add_argument('--no-stream', action='store_true', help='Don\'t stream the text output in real time.')
+parser.add_argument('--no-stream', action='store_true', default=True, help='Don\'t stream the text output in real time.')
 parser.add_argument('--settings', type=str, help='Load the default interface settings from this json file. See settings-template.json for an example. If you create a file called settings.json, this file will be loaded by default without the need to use the --settings flag.')
 parser.add_argument('--extensions', type=str, nargs="+", help='The list of extensions to load. If you want to load more than one extension, write the names separated by spaces.')
 parser.add_argument('--verbose', action='store_true', help='Print the prompts to the terminal.')
@@ -127,9 +126,9 @@ parser.add_argument('--no-mmap', action='store_true', help='Prevent mmap from be
 parser.add_argument('--mlock', action='store_true', help='Force the system to keep the model in RAM.')
 
 # GPTQ
-parser.add_argument('--wbits', type=int, default=0, help='Load a pre-quantized model with specified precision in bits. 2, 3, 4 and 8 are supported.')
+parser.add_argument('--wbits', type=int, default=4, help='Load a pre-quantized model with specified precision in bits. 2, 3, 4 and 8 are supported.')
 parser.add_argument('--model_type', type=str, help='Model type of pre-quantized model. Currently LLaMA, OPT, and GPT-J are supported.')
-parser.add_argument('--groupsize', type=int, default=-1, help='Group size.')
+parser.add_argument('--groupsize', type=int, default=128, help='Group size.')
 parser.add_argument('--pre_layer', type=int, default=0, help='The number of layers to allocate to the GPU. Setting this parameter enables CPU offloading for 4-bit models.')
 parser.add_argument('--checkpoint', type=str, help='The path to the quantized checkpoint file. If not specified, it will be automatically detected.')
 parser.add_argument('--monkey-patch', action='store_true', help='Apply the monkey patch for using LoRAs with quantized models.')
@@ -165,8 +164,8 @@ parser.add_argument('--api', action='store_true', help='Enable the API extension
 parser.add_argument('--public-api', action='store_true', help='Create a public URL for the API using Cloudfare.')
 
 
-args = parser.parse_args()
-args_defaults = parser.parse_args([])
+args, unknown = parser.parse_known_args()
+args_defaults = parser.parse_known_args([])[0]
 
 # Deprecation warnings for parameters that have been renamed
 deprecated_dict = {}
