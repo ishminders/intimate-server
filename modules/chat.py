@@ -33,7 +33,7 @@ def generate_chat_prompt(user_input, state, **kwargs):
     is_instruct = state['mode'] == 'instruct'
     rows = [state['context'] if is_instruct else f"{state['context'].strip()}\n"]
     min_rows = 3
-
+    
     # Finding the maximum prompt size
     chat_prompt_size = state['chat_prompt_size']
     if shared.soft_prompt:
@@ -60,7 +60,6 @@ def generate_chat_prompt(user_input, state, **kwargs):
     user_turn_stripped = replace_all(user_turn.split('<|user-message|>')[0], replacements)
     bot_turn_stripped = replace_all(bot_turn.split('<|bot-message|>')[0], replacements)
 
-    # Building the prompt
     i = len(shared.history['internal']) - 1
     while i >= 0 and len(encode(''.join(rows))[0]) < max_length:
         if _continue and i == len(shared.history['internal']) - 1:
@@ -87,11 +86,11 @@ def generate_chat_prompt(user_input, state, **kwargs):
 
     while len(rows) > min_rows and len(encode(''.join(rows))[0]) >= max_length:
         rows.pop(1)
-
     prompt = ''.join(rows)
     if also_return_rows:
         return prompt, rows
     else:
+        print(prompt)
         return prompt
 
 
@@ -213,6 +212,7 @@ def chatbot_wrapper(text, state, regenerate=False, _continue=False):
             cumulative_reply = reply
 
     yield shared.history['visible']
+    
 
 
 def impersonate_wrapper(text, state):
